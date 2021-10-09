@@ -1,10 +1,14 @@
 import React from "react";
 import styles from "./Card.module.scss";
 
-function Card({ name, price, img }) {
-  const onClickBtn = () => {
-    alert(price);
+function Card({ name, price, img, onPlus }) {
+  const [status, setStatus] = React.useState(false);
+
+  const setBtnPls = () => {
+    onPlus({ name, price, img });
+    setStatus(!status);
   };
+
   return (
     <div>
       <div className={styles.card}>
@@ -19,9 +23,13 @@ function Card({ name, price, img }) {
             <span> Цена:</span>
             <b> {`${price} руб.`}</b>
           </div>
-          <button className="button" onClick={onClickBtn}>
-            <img width={11} height={11} src="/img/plus.svg" alt="plus" />
-          </button>
+
+          <img
+            className={styles.btnPlus}
+            src={status ? "/img/btn-checked.svg" : "/img/btn-plus.svg"}
+            alt="plus"
+            onClick={setBtnPls}
+          />
         </div>
       </div>
     </div>
