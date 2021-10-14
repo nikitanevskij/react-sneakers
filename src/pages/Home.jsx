@@ -8,7 +8,26 @@ function Home({
   sneakers,
   favoriteCart,
   setToCard,
+  cardSneakers,
+  isLoading,
 }) {
+  const renderItems = () => {
+    const filtredItems = sneakers.filter((item) =>
+      item.title.toLowerCase().includes(itemInput.toLowerCase())
+    );
+    return (isLoading ? [...Array(10)] : filtredItems).map((obj, index) => (
+      <Card
+        key={`${index} `}
+        onFavorite={(item) => favoriteCart(item)}
+        onPlus={(item) => setToCard(item)}
+        // added={cardSneakers.some((item) => item.id === obj.id)}
+        // added={isItemAdded(obj && obj.id)}
+        loading={isLoading}
+        {...obj}
+      />
+    ));
+  };
+
   return (
     <div>
       {/*промежуточный блок с поиском*/}
@@ -37,23 +56,7 @@ function Home({
         </div>
 
         {/*основной блок карточек кроссовок на главной*/}
-        <div className="d-flex flex-wrap">
-          {sneakers
-            .filter((item) =>
-              item.title.toLowerCase().includes(itemInput.toLowerCase())
-            )
-            .map((obj, index) => (
-              <Card
-                key={`${index} ${obj.price}`}
-                name={obj.title}
-                price={obj.price}
-                img={obj.imgURL}
-                id={obj.id}
-                onFavorite={(item) => favoriteCart(item)}
-                onPlus={(item) => setToCard(item)}
-              />
-            ))}
-        </div>
+        <div className="d-flex flex-wrap">{renderItems()}</div>
       </div>
     </div>
   );

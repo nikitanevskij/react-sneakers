@@ -5,6 +5,7 @@ import Header from "./components/Header";
 import { Route } from "react-router-dom";
 import Home from "./pages/Home";
 import Favorites from "./pages/Favorites";
+import AppContext from "./components/context";
 
 function App() {
   const [sneakers, setSneakers] = React.useState([]); // карточки кроссовок на главной
@@ -12,27 +13,44 @@ function App() {
   const [cardFavorite, setCardFavorite] = React.useState([]); //карточки кроссовок в закладках
   const [closeDrawer, setCloseDrawer] = React.useState(false); // закрытие корзины
   const [itemInput, setItemInput] = React.useState(""); // хранилище input
+  const [isLoading, setIsLoading] = React.useState(true);
 
   React.useEffect(() => {
     // fetch("https://6161517ee46acd001777c003.mockapi.io/items")
     //   .then((res) => res.json())
     //   .then((items) => setSneakers(items));
-    axios
-      .get("https://6161517ee46acd001777c003.mockapi.io/items")
-      .then((res) => setSneakers(res.data));
-    // получаем кроссовки из БД для главной страницы
-    axios
-      .get("https://6161517ee46acd001777c003.mockapi.io/cart")
-      .then((res) => setCardSneakers(res.data));
-    // получаем кроссовки из БД для корзины
-    axios
-      .get("https://6161517ee46acd001777c003.mockapi.io/favorites")
-      .then((res) => setCardFavorite(res.data));
+    async function fetchData() {
+      const favoriteResponse = await axios.get(
+        "https://6161517ee46acd001777c003.mockapi.io/cart"
+      ); // получаем кроссовки из БД для favorites
+
+      const itemsResponse = await axios.get(
+        "https://6161517ee46acd001777c003.mockapi.io/favorites"
+      ); // получаем кроссовки из БД для корзины
+      const cartResponse = await axios.get(
+        "https://6161517ee46acd001777c003.mockapi.io/items"
+      ); // получаем кроссовки из БД для главной страницы
+      setIsLoading(false);
+
+      setCardSneakers(favoriteResponse.data);
+      setCardFavorite(itemsResponse.data);
+      setSneakers(cartResponse.data);
+    }
+    fetchData();
   }, []);
 
   const setToCard = (obj) => {
-    axios.post("https://6161517ee46acd001777c003.mockapi.io/cart", obj);
-    setCardSneakers((prev) => [...prev, obj]);
+    if (cardSneakers.find((item) => Number(item.id) === Number(obj.id))) {
+      axios.delete(
+        `https://6161517ee46acd001777c003.mockapi.io/cart/${obj.id}`
+      );
+      setCardSneakers((prev) =>
+        prev.filter((item) => Number(item.id) !== Number(obj.id))
+      );
+    } else {
+      axios.post("https://6161517ee46acd001777c003.mockapi.io/cart", obj);
+      setCardSneakers((prev) => [...prev, obj]);
+    }
   }; //добавляем кроссовки в хранилище корзины
 
   const sumToCard = (arr) => arr.reduce((acc, num) => acc + num.price, 0); // получаем итоговую сумму товаров в корзине
@@ -52,7 +70,7 @@ function App() {
         axios.delete(
           `https://6161517ee46acd001777c003.mockapi.io/favorites/${obj.id}`
         );
-        // setCardFavorite((prev) => prev.filter((item) => item.id !== obj.id));
+        setCardFavorite((prev) => prev.filter((item) => item.id !== obj.id));
       } else {
         const { data } = await axios.post(
           "https://6161517ee46acd001777c003.mockapi.io/favorites",
@@ -64,40 +82,58 @@ function App() {
       alert("Не удалось добавить в фавориты");
     }
   }; // добавляем понравившиеся кроссовки d favorites
-
+  const isItemAdded = (id) => {
+    return cardSneakers.some((obj) => obj.id === id);
+  };
   return (
-    <div className="wrapper clear">
-      {/*блок корзины*/}
-      {closeDrawer && (
-        <Drawer
-          onClickClose={() => setCloseDrawer(false)}
-          sneakers={cardSneakers}
+    <AppContext.Provider
+      value={{
+        sneakers,
+        cardSneakers,
+        cardFavorite,
+        isItemAdded,
+        favoriteCart,
+        setCloseDrawer,
+        setCardSneakers,
+      }}
+    >
+      <div className="wrapper clear">
+        {/*блок корзины*/}
+        {closeDrawer && (
+          <Drawer
+            onClickClose={() => setCloseDrawer(false)}
+            sneakers={cardSneakers}
+            itogo={sumToCard(cardSneakers)}
+            removeCart={onRemove}
+          />
+        )}
+
+        {/*верхний блок Header и кнопка корзины*/}
+        <Header
+          onClickClose={() => setCloseDrawer(true)}
           itogo={sumToCard(cardSneakers)}
-          removeCart={onRemove}
         />
-      )}
 
-      {/*верхний блок Header и кнопка корзины*/}
-      <Header
-        onClickClose={() => setCloseDrawer(true)}
-        itogo={sumToCard(cardSneakers)}
-      />
+        {/*верхний блок Favorite */}
+        <Route path="/favorite" exact>
+          <Favorites />
+        </Route>
 
-      <Route path="/favorite" exact>
-        <Favorites cardFavorite={cardFavorite} favoriteCart={favoriteCart} />
-      </Route>
-
-      <Route path="/" exact>
-        <Home
-          itemInput={itemInput}
-          valueInput={valueInput}
-          setItemInput={setItemInput}
-          sneakers={sneakers}
-          favoriteCart={favoriteCart}
-          setToCard={setToCard}
-        />
-      </Route>
-    </div>
+        {/*основной блок с карточками  */}
+        <Route path="/" exact>
+          <Home
+            itemInput={itemInput}
+            valueInput={valueInput}
+            setItemInput={setItemInput}
+            sneakers={sneakers}
+            favoriteCart={favoriteCart}
+            setToCard={setToCard}
+            cardSneakers={cardSneakers}
+            isLoading={isLoading}
+          />
+        </Route>
+      </div>
+    </AppContext.Provider>
   );
 }
 

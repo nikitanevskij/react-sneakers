@@ -1,8 +1,9 @@
 import React from "react";
 import Card from "../components/Card/Card";
+import AppContext from "../components/context";
 
-function Favorites({ cardFavorite, favoriteCart }) {
-  console.log(cardFavorite);
+function Favorites() {
+  const { cardFavorite, favoriteCart } = React.useContext(AppContext);
   return (
     <div>
       {/*промежуточный блок с поиском*/}
