@@ -1,11 +1,12 @@
 import React from "react";
 import axios from "axios";
-import Drawer from "./components/Drawer";
+import Drawer from "./components/Drawer/index";
 import Header from "./components/Header";
 import { Route } from "react-router-dom";
 import Home from "./pages/Home";
 import Favorites from "./pages/Favorites";
 import AppContext from "./components/context";
+import Orders from "./pages/Orders";
 
 function App() {
   const [sneakers, setSneakers] = React.useState([]); // карточки кроссовок на главной
@@ -16,44 +17,58 @@ function App() {
   const [isLoading, setIsLoading] = React.useState(true);
 
   React.useEffect(() => {
-    // fetch("https://6161517ee46acd001777c003.mockapi.io/items")
-    //   .then((res) => res.json())
-    //   .then((items) => setSneakers(items));
-    async function fetchData() {
-      const favoriteResponse = await axios.get(
-        "https://6161517ee46acd001777c003.mockapi.io/cart"
-      ); // получаем кроссовки из БД для favorites
+    try {
+      // fetch("https://6161517ee46acd001777c003.mockapi.io/items")
+      //   .then((res) => res.json())
+      //   .then((items) => setSneakers(items));
+      async function fetchData() {
+        const favoriteResponse = await axios.get(
+          "https://6161517ee46acd001777c003.mockapi.io/cart"
+        ); // получаем кроссовки из БД для favorites
 
-      const itemsResponse = await axios.get(
-        "https://6161517ee46acd001777c003.mockapi.io/favorites"
-      ); // получаем кроссовки из БД для корзины
-      const cartResponse = await axios.get(
-        "https://6161517ee46acd001777c003.mockapi.io/items"
-      ); // получаем кроссовки из БД для главной страницы
-      setIsLoading(false);
+        const itemsResponse = await axios.get(
+          "https://6161517ee46acd001777c003.mockapi.io/favorites"
+        ); // получаем кроссовки из БД для корзины
+        const cartResponse = await axios.get(
+          "https://6161517ee46acd001777c003.mockapi.io/items"
+        ); // получаем кроссовки из БД для главной страницы
 
-      setCardSneakers(favoriteResponse.data);
-      setCardFavorite(itemsResponse.data);
-      setSneakers(cartResponse.data);
+        setIsLoading(false);
+        setCardSneakers(favoriteResponse.data);
+        setCardFavorite(itemsResponse.data);
+        setSneakers(cartResponse.data);
+      }
+      fetchData();
+    } catch (error) {
+      alert("Не получили ответы ");
     }
-    fetchData();
   }, []);
 
-  const setToCard = (obj) => {
-    if (cardSneakers.find((item) => Number(item.id) === Number(obj.id))) {
-      axios.delete(
-        `https://6161517ee46acd001777c003.mockapi.io/cart/${obj.id}`
+  const setToCard = async (obj) => {
+    try {
+      const findItem = cardSneakers.find(
+        (item) => Number(item.parentId) === Number(obj.id)
       );
-      setCardSneakers((prev) =>
-        prev.filter((item) => Number(item.id) !== Number(obj.id))
-      );
-    } else {
-      axios.post("https://6161517ee46acd001777c003.mockapi.io/cart", obj);
-      setCardSneakers((prev) => [...prev, obj]);
+      if (findItem) {
+        setCardSneakers((prev) =>
+          prev.filter((item) => Number(item.parentId) !== Number(obj.id))
+        );
+        await axios.delete(
+          `https://6161517ee46acd001777c003.mockapi.io/cart/${findItem.id}`
+        );
+      } else {
+        const { data } = await axios.post(
+          "https://6161517ee46acd001777c003.mockapi.io/cart",
+          obj
+        );
+        setCardSneakers((prev) => [...prev, data]);
+      }
+    } catch (error) {
+      alert("Ошибка при добавлении в корзину");
     }
   }; //добавляем кроссовки в хранилище корзины
 
-  const sumToCard = (arr) => arr.reduce((acc, num) => acc + num.price, 0); // получаем итоговую сумму товаров в корзине
+  const sumToCard = (arr) => arr.reduce((acc, obj) => acc + obj.price, 0); // получаем итоговую сумму товаров в корзине
 
   const valueInput = (e) => {
     return setItemInput(e.target.value);
@@ -82,9 +97,11 @@ function App() {
       alert("Не удалось добавить в фавориты");
     }
   }; // добавляем понравившиеся кроссовки d favorites
+
   const isItemAdded = (id) => {
-    return cardSneakers.some((obj) => obj.id === id);
+    return cardSneakers.some((obj) => obj.parentId === id);
   };
+
   return (
     <AppContext.Provider
       value={{
@@ -95,18 +112,19 @@ function App() {
         favoriteCart,
         setCloseDrawer,
         setCardSneakers,
+        setToCard,
       }}
     >
       <div className="wrapper clear">
         {/*блок корзины*/}
-        {closeDrawer && (
-          <Drawer
-            onClickClose={() => setCloseDrawer(false)}
-            sneakers={cardSneakers}
-            itogo={sumToCard(cardSneakers)}
-            removeCart={onRemove}
-          />
-        )}
+
+        <Drawer
+          onClickClose={() => setCloseDrawer(false)}
+          sneakers={cardSneakers}
+          itogo={sumToCard(cardSneakers)}
+          removeCart={onRemove}
+          opened={closeDrawer}
+        />
 
         {/*верхний блок Header и кнопка корзины*/}
         <Header
@@ -114,9 +132,14 @@ function App() {
           itogo={sumToCard(cardSneakers)}
         />
 
-        {/*верхний блок Favorite */}
+        {/*блок Favorite */}
         <Route path="/favorite" exact>
           <Favorites />
+        </Route>
+
+        {/*блок Orders */}
+        <Route path="/orders" exact>
+          <Orders />
         </Route>
 
         {/*основной блок с карточками  */}

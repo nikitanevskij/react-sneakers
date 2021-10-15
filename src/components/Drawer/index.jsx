@@ -1,11 +1,13 @@
 import axios from "axios";
 import React from "react";
-import AppContext from "./context";
-import Info from "./info";
+import AppContext from "../context";
+
+import Info from "../info";
+import styles from "./Drawer.module.scss";
 
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-function Drawer({ onClickClose, sneakers, itogo, removeCart }) {
+function Drawer({ onClickClose, sneakers, itogo, removeCart, opened }) {
   const { cardSneakers, setCardSneakers } = React.useContext(AppContext);
   const [isOrderComplete, setIsOrderComplete] = React.useState(false);
   const [orderId, setOrderId] = React.useState(null);
@@ -37,8 +39,8 @@ function Drawer({ onClickClose, sneakers, itogo, removeCart }) {
   };
 
   return (
-    <div className="overlay">
-      <div className="drawer">
+    <div className={`${styles.overlay} ${opened && styles.overlayVisible}`}>
+      <div className={styles.drawer}>
         {/*верхний блок корзины название и кнопка закрытия*/}
         <h2 className="d-flex justify-between mb-30  ">
           Корзина
@@ -51,7 +53,7 @@ function Drawer({ onClickClose, sneakers, itogo, removeCart }) {
         </h2>
         {sneakers.length > 0 ? (
           <div className="d-flex flex-column flex">
-            <div className="items">
+            <div className="items flex">
               {sneakers.map((items, index) => (
                 <div key={index} className="cartItem d-flex align-center mb-20">
                   <div
@@ -81,7 +83,7 @@ function Drawer({ onClickClose, sneakers, itogo, removeCart }) {
                 <li>
                   <span>Налог 5%</span>
                   <div></div>
-                  <b>1074 р.</b>
+                  <b>{(itogo / 100) * 5} руб.</b>
                 </li>
               </ul>
               <button

@@ -21,16 +21,20 @@ function Header({ onClickClose, itogo }) {
           <img width={18} hight={18} src="/img/cart.svg" alt="Корзина" />
           <span>{itogo} р.</span>
         </li>
+
         {/*верхний блок лого закладок*/}
         <Link to="/favorite">
           <li className="mr-20 cu-p">
             <img width={18} hight={18} src="/img/heart.svg" alt="Закладки" />
           </li>
         </Link>
+
         {/*верхний блок лого пользователя*/}
-        <li className="cu-p">
-          <img width={18} hight={18} src="/img/user.svg" alt="Пользователь" />
-        </li>
+        <Link to="/orders">
+          <li className="cu-p">
+            <img width={18} hight={18} src="/img/user.svg" alt="Пользователь" />
+          </li>
+        </Link>
       </ul>
     </header>
   );

@@ -6,7 +6,6 @@ function Favorites() {
   const { cardFavorite, favoriteCart } = React.useContext(AppContext);
   return (
     <div>
-      {/*промежуточный блок с поиском*/}
       <div className="content p-40">
         <div className="d-flex align-center justify-between mb-40">
           <h1>Мои закладки</h1>
