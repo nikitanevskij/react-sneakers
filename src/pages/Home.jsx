@@ -38,7 +38,7 @@ function Home({
           </h1>
           {/*блок поиска*/}
           <div className="search-block d-flex">
-            <img src="/img/search.svg" alt="search" />
+            <img src="img/search.svg" alt="search" />
             <input
               onChange={valueInput}
               value={itemInput}
@@ -48,7 +48,7 @@ function Home({
               <img
                 onClick={() => setItemInput("")}
                 className="cu-p"
-                src="/img/btn-remove.svg"
+                src="img/btn-remove.svg"
                 alt="clear"
               />
             )}

@@ -46,7 +46,7 @@ function Drawer({ onClickClose, sneakers, itogo, removeCart, opened }) {
           Корзина
           <img
             className="removeBtn cu-p"
-            src="/img/btn-remove.svg"
+            src="img/btn-remove.svg"
             alt="remove"
             onClick={onClickClose}
           />
@@ -67,7 +67,7 @@ function Drawer({ onClickClose, sneakers, itogo, removeCart, opened }) {
                   <img
                     onClick={() => removeCart(items.id)}
                     className="removeBtn"
-                    src="/img/btn-remove.svg"
+                    src="img/btn-remove.svg"
                     alt="remove"
                   />
                 </div>
@@ -99,9 +99,7 @@ function Drawer({ onClickClose, sneakers, itogo, removeCart, opened }) {
         ) : (
           <Info
             image={
-              isOrderComplete
-                ? "/img/complete-order.jpg"
-                : "/img/empty-cart.jpg"
+              isOrderComplete ? "img/complete-order.jpg" : "img/empty-cart.jpg"
             }
             title={isOrderComplete ? "Заказ оформлен!" : "Корзина пустая"}
             description={
