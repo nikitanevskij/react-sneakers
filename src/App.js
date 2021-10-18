@@ -133,17 +133,17 @@ function App() {
         />
 
         {/*блок Favorite */}
-        <Route path="/favorite" exact>
+        <Route path="favorite" exact>
           <Favorites />
         </Route>
 
         {/*блок Orders */}
-        <Route path="/orders" exact>
+        <Route path="orders" exact>
           <Orders />
         </Route>
 
         {/*основной блок с карточками  */}
-        <Route path="/" exact>
+        <Route path="" exact>
           <Home
             itemInput={itemInput}
             valueInput={valueInput}

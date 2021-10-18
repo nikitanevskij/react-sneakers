@@ -5,7 +5,7 @@ function Header({ onClickClose, itogo }) {
   return (
     <header className="d-flex justify-between align-center p-40">
       {/*верхний блок логотип сайта и название*/}
-      <Link to="/">
+      <Link to="">
         <div className="d-flex align-center">
           <img width={40} height={40} src="img/logo.png" alt="logo" />
           <div>
@@ -23,14 +23,14 @@ function Header({ onClickClose, itogo }) {
         </li>
 
         {/*верхний блок лого закладок*/}
-        <Link to="/favorite">
+        <Link to="favorite">
           <li className="mr-20 cu-p">
             <img width={18} hight={18} src="img/heart.svg" alt="Закладки" />
           </li>
         </Link>
 
         {/*верхний блок лого пользователя*/}
-        <Link to="/orders">
+        <Link to="orders">
           <li className="cu-p">
             <img width={18} hight={18} src="img/user.svg" alt="Пользователь" />
           </li>
